@@ -1,0 +1,27 @@
+global:
+  resolve_timeout: 5m
+route:
+  group_by: ['alertname', 'namespace']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'ai-pipeline'
+  routes:
+    - receiver: 'null'
+      matchers:
+        - alertname = "Watchdog"
+    - receiver: 'ai-pipeline'
+      matchers:
+        - alertname != "Watchdog"
+receivers:
+  - name: 'null'
+  - name: 'ai-pipeline'
+    webhook_configs:
+      - url: 'https://kfaxnju4jp6n3uot6w5y7v4hua0toyhx.lambda-url.eu-west-2.on.aws/'
+        send_resolved: false
+inhibit_rules:
+  - source_matchers:
+      - severity="critical"
+    target_matchers:
+      - severity="warning"
+    equal: ['alertname', 'namespace']
