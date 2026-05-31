@@ -27,6 +27,26 @@ alertmanager:
       limits:
         memory: 200Mi
         cpu: 100m
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname', 'namespace']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'ai-pipeline'
+    receivers:
+      - name: 'ai-pipeline'
+        webhook_configs:
+          - url: 'https://kfaxnju4jp6n3uot6w5y7v4hua0toyhx.lambda-url.eu-west-2.on.aws/'
+            send_resolved: false
+    inhibit_rules:
+      - source_matchers:
+          - severity="critical"
+        target_matchers:
+          - severity="warning"
+        equal: ['alertname', 'namespace']
 
 nodeExporter:
   enabled: true

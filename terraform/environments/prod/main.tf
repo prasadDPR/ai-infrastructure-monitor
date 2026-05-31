@@ -12,3 +12,12 @@ module "eks" {
   cluster_name       = "healthcare-monitor"
   private_subnet_ids = module.vpc.private_subnet_ids
 }
+
+module "lambda" {
+  source      = "../../modules/lambda"
+  alert_email = "dprasad28062001@gmail.com"
+}
+
+output "lambda_function_url" {
+  value = module.lambda.lambda_function_url
+}
