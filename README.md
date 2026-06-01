@@ -315,7 +315,7 @@ Destroy the cluster when not actively working. Rebuild takes 20 minutes.
 **Prasad Dhakshinamoorthi**
 Leicester, UK
 
-[GitHub](https://github.com/prasadDPR) · [LinkedIn](https://linkedin.com/in/prasadDPR)
+[GitHub](https://github.com/prasadDPR) · [LinkedIn](https://www.linkedin.com/in/prasad2806/)
 
 ---
 

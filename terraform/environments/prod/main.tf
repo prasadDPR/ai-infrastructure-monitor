@@ -14,8 +14,10 @@ module "eks" {
 }
 
 module "lambda" {
-  source      = "../../modules/lambda"
-  alert_email = "dprasad28062001@gmail.com"
+  source             = "../../modules/lambda"
+  alert_email        = "dprasad28062001@gmail.com"
+  private_subnet_ids = module.vpc.private_subnet_ids
+  vpc_id             = module.vpc.vpc_id
 }
 
 output "lambda_function_url" {
