@@ -21,12 +21,12 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           directory: terraform/
-          soft_fail: true
+          soft_fail: false
 
       - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          soft_fail: true
+          soft_fail: false
 
   terraform-plan:
     needs: security-scan
