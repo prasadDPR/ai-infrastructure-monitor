@@ -1,18 +1,39 @@
 global:
   resolve_timeout: 5m
 route:
-  group_by: ['alertname', 'namespace']
-  group_wait: 10s
-  group_interval: 10s
-  repeat_interval: 1h
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 24h
   receiver: 'ai-pipeline'
   routes:
     - receiver: 'null'
       matchers:
         - alertname = "Watchdog"
+    - receiver: 'null'
+      matchers:
+        - alertname = "KubeControllerManagerDown"
+    - receiver: 'null'
+      matchers:
+        - alertname = "KubeSchedulerDown"
+    - receiver: 'null'
+      matchers:
+        - alertname = "KubeletTooManyPods"
+    - receiver: 'null'
+      matchers:
+        - alertname = "KubeSchedulerDown"
     - receiver: 'ai-pipeline'
       matchers:
-        - alertname != "Watchdog"
+        - alertname = "PodCrashLooping"
+    - receiver: 'ai-pipeline'
+      matchers:
+        - alertname = "HighCPUUsage"
+    - receiver: 'ai-pipeline'
+      matchers:
+        - alertname = "HighMemoryUsage"
+    - receiver: 'ai-pipeline'
+      matchers:
+        - alertname = "NodeNotReady"
 receivers:
   - name: 'null'
   - name: 'ai-pipeline'
