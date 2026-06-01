@@ -16,3 +16,5 @@ skip-check:
   - CKV2_AWS_61  # S3 lifecycle configuration - not required for CloudTrail audit bucket
   - CKV_AWS_144  # S3 cross-region replication - single region deployment for portfolio
   - CKV2_AWS_11  # VPC flow logging - not required for portfolio project
+  - CKV_AWS_290  # IAM write access without constraints - EC2 network interface actions require * resource per AWS docs
+  - CKV_AWS_355  # IAM * resource - ec2:DescribeNetworkInterfaces does not support resource-level restrictions
