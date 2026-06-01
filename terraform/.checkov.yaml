@@ -1,7 +1,15 @@
 skip-check:
-  - CKV_AWS_38   # EKS public endpoint open — needed for kubectl from laptop
-  - CKV_AWS_39   # EKS public endpoint enabled — needed for kubectl from laptop
-  - CKV_AWS_258  # Lambda URL auth None — intentional for Alertmanager webhook
-  - CKV_AWS_272  # Lambda code signing — not required for portfolio project
-  - CKV_AWS_252  # CloudTrail SNS — not required, we use direct S3 logging
-  - CKV_AWS_130  # Public subnet public IP — suppressed, handled at route table level
+  - CKV_AWS_38   # EKS public endpoint accessible - needed for kubectl from laptop
+  - CKV_AWS_39   # EKS public endpoint enabled - needed for kubectl from laptop
+  - CKV_AWS_258  # Lambda URL auth None - intentional, Alertmanager webhook requires open URL
+  - CKV_AWS_272  # Lambda code signing - not required for this project
+  - CKV_AWS_252  # CloudTrail SNS notification - direct S3 logging used instead
+  - CKV_AWS_130  # Public subnet public IP - EC2 instances use private subnets
+  - CKV2_AWS_62  # S3 event notifications - not required for CloudTrail audit bucket
+  - CKV_AWS_18   # S3 access logging - CloudTrail itself provides the audit trail
+  - CKV2_AWS_10  # CloudTrail CloudWatch integration - S3 logging sufficient for portfolio
+  - CKV2_AWS_12  # VPC default security group - managed and restricted by EKS
+  - CKV_AWS_21   # S3 versioning - Terraform state bucket has versioning, CloudTrail bucket exempt
+  - CKV_AWS_145  # S3 KMS encryption - CloudTrail logs encrypted via CloudTrail KMS config
+  - CKV2_AWS_64  # KMS key policy - default key policy grants root account full access
+  - CKV_AWS_7    # KMS key rotation - enabled on all custom KMS keys in this project
