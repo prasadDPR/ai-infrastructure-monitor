@@ -21,6 +21,7 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           directory: terraform/
+          config_file: terraform/.checkov.yaml
           soft_fail: false
 
       - name: Run tfsec

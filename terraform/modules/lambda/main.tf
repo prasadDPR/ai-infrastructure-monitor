@@ -97,7 +97,7 @@ resource "aws_iam_role_policy" "lambda" {
           "ec2:DescribeNetworkInterfaces",
           "ec2:DeleteNetworkInterface"
         ]
-        Resource = "*"
+        Resource = "arn:aws:ec2:eu-west-2:${data.aws_caller_identity.current.account_id}:network-interface/*"
       }
     ]
   })

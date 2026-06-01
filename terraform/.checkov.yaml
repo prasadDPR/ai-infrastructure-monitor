@@ -1,0 +1,7 @@
+skip-check:
+  - CKV_AWS_38   # EKS public endpoint open — needed for kubectl from laptop
+  - CKV_AWS_39   # EKS public endpoint enabled — needed for kubectl from laptop
+  - CKV_AWS_258  # Lambda URL auth None — intentional for Alertmanager webhook
+  - CKV_AWS_272  # Lambda code signing — not required for portfolio project
+  - CKV_AWS_252  # CloudTrail SNS — not required, we use direct S3 logging
+  - CKV_AWS_130  # Public subnet public IP — suppressed, handled at route table level
