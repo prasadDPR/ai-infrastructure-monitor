@@ -38,7 +38,7 @@ receivers:
   - name: 'null'
   - name: 'ai-pipeline'
     webhook_configs:
-      - url: 'https://gurxyosnl5kyqysypp4rdniwbi0tblfi.lambda-url.eu-west-2.on.aws/'
+      - url: 'https://e6kol6kfdwutji3zquq5kl7eji0iwwhx.lambda-url.eu-west-2.on.aws/'
         send_resolved: false
 inhibit_rules:
   - source_matchers:
