@@ -1,6 +1,6 @@
 # SQS Dead Letter Queue for Lambda
 resource "aws_sqs_queue" "lambda_dlq" {
-  name                      = "healthcare-ai-pipeline-dlq"
+  name                      = "ai-infrastructure-pipeline-dlq"
   message_retention_seconds = 86400
   kms_master_key_id         = aws_kms_key.lambda.id
 }
@@ -21,7 +21,7 @@ resource "aws_kms_key" "sns" {
 
 # SNS topic with encryption
 resource "aws_sns_topic" "alerts" {
-  name              = "healthcare-monitor-alerts"
+  name              = "ai-infrastructure-monitor-alerts"
   kms_master_key_id = aws_kms_key.sns.arn
 }
 
@@ -33,7 +33,7 @@ resource "aws_sns_topic_subscription" "email" {
 
 # IAM role for Lambda
 resource "aws_iam_role" "lambda" {
-  name = "healthcare-ai-pipeline-role"
+  name = "ai-infrastructure-pipeline-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -45,7 +45,7 @@ resource "aws_iam_role" "lambda" {
 }
 
 resource "aws_iam_role_policy" "lambda" {
-  name = "healthcare-ai-pipeline-policy"
+  name = "ai-infrastructure-pipeline-policy"
   role = aws_iam_role.lambda.id
   policy = jsonencode({
     Version = "2012-10-17"
@@ -59,7 +59,7 @@ resource "aws_iam_role_policy" "lambda" {
           "aws-marketplace:Subscribe",
           "aws-marketplace:Unsubscribe"
         ]
-        Resource = "arn:aws:bedrock:eu-west-2::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
+        Resource = "*"
       },
       {
         Effect   = "Allow"
@@ -73,13 +73,11 @@ resource "aws_iam_role_policy" "lambda" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/healthcare-ai-pipeline:*"
+        Resource = "arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/ai-infrastructure-pipeline:*"
       },
       {
-        Effect = "Allow"
-        Action = [
-          "sqs:SendMessage"
-        ]
+        Effect   = "Allow"
+        Action   = ["sqs:SendMessage"]
         Resource = aws_sqs_queue.lambda_dlq.arn
       },
       {
@@ -95,9 +93,11 @@ resource "aws_iam_role_policy" "lambda" {
         Action = [
           "ec2:CreateNetworkInterface",
           "ec2:DescribeNetworkInterfaces",
-          "ec2:DeleteNetworkInterface"
+          "ec2:DeleteNetworkInterface",
+          "ec2:AssignPrivateIpAddresses",
+          "ec2:UnassignPrivateIpAddresses"
         ]
-        Resource = "arn:aws:ec2:eu-west-2:${data.aws_caller_identity.current.account_id}:network-interface/*"
+        Resource = "*"
       }
     ]
   })
@@ -115,14 +115,14 @@ data "aws_caller_identity" "current" {}
 # Lambda function with all security best practices
 resource "aws_lambda_function" "ai_pipeline" {
   filename         = data.archive_file.lambda.output_path
-  function_name    = "healthcare-ai-pipeline"
+  function_name    = "ai-infrastructure-pipeline"
   role             = aws_iam_role.lambda.arn
   handler          = "ai_pipeline.lambda_handler"
   runtime          = "python3.11"
   timeout          = 60
   source_code_hash = data.archive_file.lambda.output_base64sha256
 
-  reserved_concurrent_executions = 10
+  reserved_concurrent_executions = -1
 
   kms_key_arn = aws_kms_key.lambda.arn
 
@@ -144,11 +144,15 @@ resource "aws_lambda_function" "ai_pipeline" {
       SNS_TOPIC_ARN = aws_sns_topic.alerts.arn
     }
   }
+  depends_on = [
+    aws_iam_role_policy.lambda,
+    aws_iam_role.lambda
+  ]
 }
 
 # Security group for Lambda
 resource "aws_security_group" "lambda" {
-  name        = "healthcare-lambda-sg"
+  name        = "ai-infrastructure-lambda-sg"
   description = "Security group for AI pipeline Lambda"
   vpc_id      = var.vpc_id
 

@@ -32,24 +32,24 @@ resource "aws_kms_key" "cloudtrail" {
   })
 
   tags = {
-    Name    = "healthcare-cloudtrail-key"
-    Project = "healthcare-monitor"
+    Name    = "ai-infrastructure-cloudtrail-key"
+    Project = "ai-infrastructure-monitor"
   }
 }
 
 resource "aws_kms_alias" "cloudtrail" {
-  name          = "alias/healthcare-cloudtrail"
+  name          = "alias/ai-infrastructure-cloudtrail"
   target_key_id = aws_kms_key.cloudtrail.key_id
 }
 
 # S3 bucket for CloudTrail logs
 resource "aws_s3_bucket" "cloudtrail" {
-  bucket        = "healthcare-cloudtrail-${data.aws_caller_identity.current.account_id}"
+  bucket        = "ai-infrastructure-cloudtrail-${data.aws_caller_identity.current.account_id}"
   force_destroy = true
 
   tags = {
-    Name    = "healthcare-cloudtrail-logs"
-    Project = "healthcare-monitor"
+    Name    = "ai-infrastructure-cloudtrail-logs"
+    Project = "ai-infrastructure-monitor"
   }
 }
 
@@ -95,7 +95,7 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
 
 # CloudTrail — audit logging
 resource "aws_cloudtrail" "main" {
-  name                          = "healthcare-audit-trail"
+  name                          = "ai-infrastructure-audit-trail"
   s3_bucket_name                = aws_s3_bucket.cloudtrail.id
   include_global_service_events = true
   is_multi_region_trail         = true
@@ -113,9 +113,9 @@ resource "aws_cloudtrail" "main" {
   }
 
   tags = {
-    Name        = "healthcare-audit-trail"
+    Name        = "ai-infrastructure-audit-trail"
     Environment = "production"
-    Project     = "healthcare-monitor"
+    Project     = "ai-infrastructure-monitor"
   }
 
   depends_on = [aws_s3_bucket_policy.cloudtrail]

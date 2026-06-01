@@ -6,7 +6,7 @@ resource "aws_kms_key" "eks" {
 
 # IAM role for the EKS cluster itself
 resource "aws_iam_role" "cluster" {
-  name = "healthcare-eks-cluster-role"
+  name = "ai-infrastructure-eks-cluster-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -24,7 +24,7 @@ resource "aws_iam_role_policy_attachment" "cluster_policy" {
 
 # IAM role for the worker nodes
 resource "aws_iam_role" "node" {
-  name = "healthcare-eks-node-role"
+  name = "ai-infrastructure-eks-node-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -51,7 +51,7 @@ resource "aws_iam_role_policy_attachment" "node_ecr" {
 }
 
 # The EKS cluster
-resource "aws_eks_cluster" "healthcare_monitor" {
+resource "aws_eks_cluster" "ai_infrastructure_monitor" {
   name     = var.cluster_name
   role_arn = aws_iam_role.cluster.arn
   version  = "1.32"
@@ -82,7 +82,7 @@ resource "aws_eks_cluster" "healthcare_monitor" {
 
 # The worker nodes
 resource "aws_eks_node_group" "monitoring" {
-  cluster_name    = aws_eks_cluster.healthcare_monitor.name
+  cluster_name    = aws_eks_cluster.ai_infrastructure_monitor.name
   node_group_name = "monitoring-nodes"
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.private_subnet_ids
@@ -102,7 +102,7 @@ resource "aws_eks_node_group" "monitoring" {
 }
 
 resource "aws_eks_addon" "ebs_csi_driver" {
-  cluster_name             = aws_eks_cluster.healthcare_monitor.name
+  cluster_name             = aws_eks_cluster.ai_infrastructure_monitor.name
   addon_name               = "aws-ebs-csi-driver"
   addon_version            = "v1.37.0-eksbuild.1"
   resolve_conflicts_on_create = "OVERWRITE"
@@ -110,19 +110,19 @@ resource "aws_eks_addon" "ebs_csi_driver" {
 }
 
 resource "aws_iam_role" "ebs_csi" {
-  name = "healthcare-ebs-csi-role"
+  name = "ai-infrastructure-ebs-csi-role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.healthcare_monitor.identity[0].oidc[0].issuer, "https://", "")}"
+        Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(aws_eks_cluster.ai_infrastructure_monitor.identity[0].oidc[0].issuer, "https://", "")}"
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(aws_eks_cluster.healthcare_monitor.identity[0].oidc[0].issuer, "https://", "")}:aud" = "sts.amazonaws.com"
-          "${replace(aws_eks_cluster.healthcare_monitor.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          "${replace(aws_eks_cluster.ai_infrastructure_monitor.identity[0].oidc[0].issuer, "https://", "")}:aud" = "sts.amazonaws.com"
+          "${replace(aws_eks_cluster.ai_infrastructure_monitor.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
         }
       }
     }]
@@ -137,11 +137,11 @@ resource "aws_iam_role_policy_attachment" "ebs_csi" {
 data "aws_caller_identity" "current" {}
 
 data "tls_certificate" "eks" {
-  url = aws_eks_cluster.healthcare_monitor.identity[0].oidc[0].issuer
+  url = aws_eks_cluster.ai_infrastructure_monitor.identity[0].oidc[0].issuer
 }
 
 resource "aws_iam_openid_connect_provider" "eks" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
-  url             = aws_eks_cluster.healthcare_monitor.identity[0].oidc[0].issuer
+  url             = aws_eks_cluster.ai_infrastructure_monitor.identity[0].oidc[0].issuer
 }
