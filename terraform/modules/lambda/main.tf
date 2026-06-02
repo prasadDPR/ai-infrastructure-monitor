@@ -86,7 +86,10 @@ resource "aws_iam_role_policy" "lambda" {
           "kms:Decrypt",
           "kms:GenerateDataKey"
         ]
-        Resource = aws_kms_key.lambda.arn
+        Resource = [
+          aws_kms_key.lambda.arn,
+          aws_kms_key.sns.arn
+        ]
       },
       {
         Effect = "Allow"
