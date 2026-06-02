@@ -4,6 +4,8 @@
 
 When an infrastructure incident occurs, this system automatically detects it, analyses it with Claude AI via AWS Bedrock, and delivers a root cause analysis with exact remediation steps to the on-call engineer — in under 2 minutes.
 
+![AI-Powered Infrastructure Monitor](screenshots/AI-Powered-Infrastructure-Monitor.png)
+
 ---
 
 ## Compliance standards addressed
